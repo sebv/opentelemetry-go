@@ -77,15 +77,18 @@ func (c *client) Stop(ctx context.Context) error {
 
 // UploadMetrics sends a batch of metrics to the collector.
 func (c *client) UploadMetrics(ctx context.Context, protoMetrics []*metricpb.ResourceMetrics) error {
+	fmt.Println("AKAK0 UploadMetrics")
 	if !c.connection.Connected() {
 		return fmt.Errorf("metrics exporter is disconnected from the server %s: %w", c.connection.SCfg.Endpoint, c.connection.LastConnectError())
 	}
+	fmt.Println("AKAK1 UploadMetrics", protoMetrics)
 
 	ctx, cancel := c.connection.ContextWithStop(ctx)
 	defer cancel()
 	ctx, tCancel := context.WithTimeout(ctx, c.connection.SCfg.Timeout)
 	defer tCancel()
 
+	fmt.Println("AKAK1 UploadMetrics")
 	ctx = c.connection.ContextWithMetadata(ctx)
 	err := func() error {
 		c.lock.Lock()
@@ -95,14 +98,18 @@ func (c *client) UploadMetrics(ctx context.Context, protoMetrics []*metricpb.Res
 		}
 
 		return c.connection.DoRequest(ctx, func(ctx context.Context) error {
+			fmt.Println("AKAK2 UploadMetrics")
 			_, err := c.metricsClient.Export(ctx, &colmetricpb.ExportMetricsServiceRequest{
 				ResourceMetrics: protoMetrics,
 			})
+			fmt.Println("AKAK3 UploadMetrics", err)
 			return err
 		})
 	}()
+	fmt.Println("AKAK4 UploadMetrics", err)
 	if err != nil {
 		c.connection.SetStateDisconnected(err)
 	}
+	fmt.Println("AKAK5 UploadMetrics")
 	return err
 }
