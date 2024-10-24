@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"google.golang.org/grpc"
 
@@ -98,11 +99,12 @@ func (c *client) UploadMetrics(ctx context.Context, protoMetrics []*metricpb.Res
 		}
 
 		return c.connection.DoRequest(ctx, func(ctx context.Context) error {
+			startT := time.Now()
 			fmt.Println("AKAK2 UploadMetrics")
 			_, err := c.metricsClient.Export(ctx, &colmetricpb.ExportMetricsServiceRequest{
 				ResourceMetrics: protoMetrics,
 			})
-			fmt.Println("AKAK3 UploadMetrics", err)
+			fmt.Println("AKAK3 UploadMetrics", time.Since(startT), err)
 			return err
 		})
 	}()
